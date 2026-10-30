@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trắc nghiệm Công nghệ xây dựng</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: #f4f7fc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-size: 16px; color: #172033; min-height: 100vh; }
+
+header { background: #ffffff; border-bottom: 1px solid #e2e7f0; padding: 13px 16px; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; position: -webkit-sticky; position: sticky; top: 0; z-index: 10; }
+header h1 { font-size: 17px; font-weight: 700; color: #172033; }
+.badge { background: #2459d3; color: #ffffff; border-radius: 99px; padding: 4px 13px; font-size: 13px; font-weight: 700; }
+
+.wrap { max-width: 620px; margin: 0 auto; padding: 16px 14px 60px; }
+
+.kpi-wrap { background: #ffffff; border: 1px solid #e2e7f0; border-radius: 14px; padding: 13px 15px; margin-bottom: 14px; }
+.kpi-top { font-size: 13px; color: #65718a; margin-bottom: 7px; display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; }
+.kpi-bg { height: 10px; background: #e9edf5; border-radius: 99px; overflow: hidden; }
+.kpi-fill { height: 10px; background: #16a34a; border-radius: 99px; width: 0%; -webkit-transition: width 0.4s; transition: width 0.4s; }
+
+.card { background: #ffffff; border: 1px solid #e2e7f0; border-radius: 14px; padding: 18px 16px; margin-bottom: 14px; }
+.q-meta { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 8px; -webkit-flex-wrap: wrap; flex-wrap: wrap; margin-bottom: 10px; }
+.tag { background: #e8eef8; color: #2459d3; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+.tag-retry { background: #fff3e6; color: #ea580c; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+.q-progress { margin-left: auto; font-size: 13px; color: #65718a; }
+.q-text { font-size: 17px; font-weight: 700; line-height: 1.5; margin-bottom: 18px; color: #172033; }
+
+.options { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; gap: 9px; }
+.opt {
+  display: -webkit-flex; display: flex;
+  -webkit-align-items: center; align-items: center;
+  gap: 11px;
+  border: 2px solid #e2e7f0;
+  padding: 12px 13px;
+  border-radius: 11px;
+  cursor: pointer;
+  font-size: 15px;
+  background: #ffffff;
+  color: #172033;
+  width: 100%;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  line-height: 1.45;
+  -webkit-transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s;
+}
+.opt:active { opacity: 0.8; }
+.opt-letter {
+  min-width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #e9edf5;
+  color: #172033;
+  display: -webkit-flex; display: flex;
+  -webkit-align-items: center; align-items: center;
+  -webkit-justify-content: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+  -webkit-flex-shrink: 0; flex-shrink: 0;
+}
+.opt-text { color: #172033; font-size: 15px; }
+
+/* States */
+.opt.state-correct { border-color: #16a34a; background: #f0fdf4; }
+.opt.state-correct .opt-letter { background: #16a34a; color: #ffffff; }
+.opt.state-correct .opt-text { color: #15803d; font-weight: 600; }
+
+.opt.state-wrong { border-color: #dc2626; background: #fef2f2; }
+.opt.state-wrong .opt-letter { background: #dc2626; color: #ffffff; }
+.opt.state-wrong .opt-text { color: #b91c1c; font-weight: 600; }
+
+.opt.state-show { border-color: #16a34a; background: #f0fdf4; }
+.opt.state-show .opt-letter { background: #16a34a; color: #ffffff; }
+.opt.state-show .opt-text { color: #15803d; font-weight: 600; }
+
+.feedback { margin-top: 13px; border-radius: 10px; padding: 11px 13px; font-size: 14px; font-weight: 600; display: none; }
+.feedback.fb-ok { display: block; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.feedback.fb-err { display: block; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+.btn-next {
+  display: none;
+  width: 100%;
+  margin-top: 13px;
+  padding: 14px;
+  background: #2459d3;
+  color: #ffffff;
+  border: none;
+  border-radius: 11px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+.btn-next.show { display: block; }
+.btn-next:active { background: #1a3fa0; }
+
+.finish { display: none; text-align: center; padding: 40px 20px; }
+.finish.show { display: block; }
+.finish-icon { font-size: 60px; margin-bottom: 14px; }
+.finish h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #172033; }
+.finish p { color: #65718a; margin-bottom: 10px; }
+.finish-score { font-size: 42px; font-weight: 800; color: #16a34a; margin: 14px 0; }
+.finish-ok { color: #16a34a; font-weight: 600; margin-bottom: 24px; }
+.btn-restart {
+  padding: 14px 32px;
+  background: #2459d3;
+  color: #ffffff;
+  border: none;
+  border-radius: 11px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+.btn-restart:active { background: #1a3fa0; }
+.hidden { display: none !important; }
+
+/* PASSWORD SCREEN */
+#pwScreen {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #f4f7fc;
+  display: -webkit-flex; display: flex;
+  -webkit-align-items: center; align-items: center;
+  -webkit-justify-content: center; justify-content: center;
+  z-index: 999;
+}
+.pw-box {
+  background: #ffffff;
+  border: 1px solid #e2e7f0;
+  border-radius: 18px;
+  padding: 32px 28px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(23,32,51,0.10);
+}
+.pw-icon { font-size: 48px; margin-bottom: 12px; }
+.pw-title { font-size: 20px; font-weight: 700; color: #172033; margin-bottom: 6px; }
+.pw-hint { font-size: 13px; color: #65718a; margin-bottom: 22px; line-height: 1.5; }
+.pw-input {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 6px;
+  border: 2px solid #e2e7f0;
+  border-radius: 12px;
+  color: #172033;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  -webkit-appearance: none; appearance: none;
+  outline: none;
+  margin-bottom: 12px;
+}
+.pw-input:focus { border-color: #2459d3; background: #f0f4ff; }
+.pw-btn {
+  width: 100%;
+  padding: 13px;
+  background: #2459d3; color: #ffffff;
+  border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  -webkit-appearance: none; appearance: none;
+}
+.pw-btn:active { background: #1a3fa0; }
+.pw-err {
+  font-size: 13px; font-weight: 600; color: #dc2626;
+  min-height: 18px; margin-top: 10px;
+}
+
+.mode-screen { display:none; max-width:620px; margin:0 auto; padding:28px 16px; }
+.mode-screen.show { display:block; }
+.mode-card { background:#fff; border:1px solid #e2e7f0; border-radius:16px; padding:22px 18px; margin:14px 0; }
+.mode-btn { width:100%; border:0; border-radius:12px; padding:16px; margin-top:10px; color:#fff; background:#2459d3; font-size:16px; font-weight:700; cursor:pointer; }
+.mode-btn.alt { background:#15803d; }
+.mode-desc { color:#65718a; font-size:14px; line-height:1.55; margin-top:7px; }
+.exam-actions { display:flex; gap:10px; margin-top:14px; }
+.exam-actions button { flex:1; border:0; border-radius:10px; padding:13px; background:#2459d3; color:#fff; font-weight:700; font-size:15px; }
+.exam-actions button.secondary { background:#64748b; }
+.exam-option.selected { border-color:#2459d3; background:#eff6ff; }
+.exam-review { text-align:left; margin-top:20px; }
+.exam-review-row { padding:10px 0; border-bottom:1px solid #e2e7f0; font-size:14px; line-height:1.5; }
+.exam-review-row .ok { color:#15803d; font-weight:700; }
+.exam-review-row .bad { color:#b91c1c; font-weight:700; }
+/* Exam question navigator */
+.exam-nav-wrap { background:#fff; border:1px solid #e2e7f0; border-radius:14px; padding:14px; margin-top:14px; }
+.exam-nav-title { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:11px; font-size:14px; font-weight:700; }
+.exam-nav-legend { display:flex; flex-wrap:wrap; gap:12px; color:#65718a; font-size:12px; font-weight:500; }
+.exam-nav-legend span { display:inline-flex; align-items:center; gap:5px; }
+.exam-nav-dot { width:10px; height:10px; border-radius:3px; display:inline-block; background:#e9edf5; border:1px solid #cbd5e1; }
+.exam-nav-dot.done { background:#dcfce7; border-color:#16a34a; }
+.exam-nav-grid { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:7px; }
+.exam-nav-btn { min-width:0; padding:9px 2px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#334155; font-size:13px; font-weight:700; cursor:pointer; }
+.exam-nav-btn.answered { background:#dcfce7; border-color:#16a34a; color:#166534; }
+.exam-nav-btn.current { outline:2px solid #2459d3; outline-offset:1px; border-color:#2459d3; }
+.exam-nav-btn:disabled { cursor:default; opacity:.7; }
+.exam-count { color:#2459d3; font-size:14px; font-weight:700; margin:0 0 12px; }
+@media (max-width:380px) { .exam-nav-grid { gap:5px; } .exam-nav-btn { padding:8px 1px; font-size:12px; } }
+.back-mode { background:transparent; color:#2459d3; border:1px solid #2459d3; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-weight:700; }
+
+
+.submit-confirm { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(15,23,42,.55); }
+.submit-confirm.hidden { display: none; }
+.submit-confirm-box { width: 100%; max-width: 360px; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 16px 50px rgba(0,0,0,.22); }
+.submit-confirm-box h3 { font-size: 18px; margin-bottom: 10px; }
+.submit-confirm-box p { color: #536078; line-height: 1.5; margin-bottom: 18px; }
+.submit-confirm-actions { display: flex; flex-wrap: wrap; gap: 9px; justify-content: flex-end; }
+.submit-confirm-actions button { border: 0; border-radius: 9px; padding: 11px 14px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pwScreen">
+  <div class="pw-box">
+    <div class="pw-icon">🔐</div>
+    <div class="pw-title">Nhập mật khẩu</div>
+    <div class="pw-hint">Mật khẩu hỏi Phúc</div>
+    <input class="pw-input" id="pwInput" type="password" maxlength="10" placeholder="••••" autocomplete="off" />
+    <button class="pw-btn" type="button" onclick="pwCheck()">Xác nhận</button>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
+
+
+<div id="modeScreen" class="mode-screen">
+  <div class="mode-card">
+    <h2 style="font-size:22px;margin-bottom:6px;">🏗️ Chọn chế độ</h2>
+    <button class="mode-btn alt" type="button" onclick="startStudy()">📚 HỌC – 150 câu trắc nghiệm</button>
+    <button class="mode-btn" type="button" onclick="startExam()">📝 KIỂM TRA – Đề ngẫu nhiên 50 câu</button>
+  </div>
+</div>
+
+<header id="appHeader" class="hidden">
+  <h1>🏗️ Trắc nghiệm Công nghệ xây dựng</h1>
+  <span class="badge" id="kpiBadge">0 / 150</span>
+</header>
+
+<div class="wrap">
+  <div class="kpi-wrap hidden">
+    <div class="kpi-top">
+      <span>Tiến độ hoàn thành</span>
+      <span id="kpiText">0 câu đúng / 150 câu</span>
+    </div>
+    <div class="kpi-bg"><div class="kpi-fill" id="kpiFill"></div></div>
+  </div>
+
+  <div id="quizArea">
+    <button class="back-mode" type="button" onclick="backToModes()">← Chọn chế độ khác</button>
+    <div class="card">
+      <div class="q-meta">
+        <span class="tag" id="qNum">Câu #</span>
+        <span class="tag-retry hidden" id="qRetry">🔁 Ôn lại</span>
+        <span class="q-progress" id="qProg"></span>
+      </div>
+      <div class="q-text" id="qText">Đang tải...</div>
+      <div class="options" id="optsEl"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="btn-next" id="btnNext">Câu tiếp theo →</button>
+    </div>
+  </div>
+
+
+  <div id="examArea" class="hidden">
+    <button class="back-mode" type="button" onclick="backToModes()">← Chọn chế độ khác</button>
+    <div class="exam-count" id="examAnsweredCount">Đã chọn 0/50 câu</div>
+    <div class="card">
+      <div class="q-meta">
+        <span class="tag" id="examNum">Câu 1</span>
+        <span class="q-progress" id="examProgress">1 / 50 · 40:00</span>
+      </div>
+      <div class="q-text" id="examText"></div>
+      <div class="options" id="examOptions"></div>
+      <div class="exam-actions">
+        <button type="button" class="secondary" id="examPrev">← Câu trước</button>
+        <button type="button" id="examNext">Câu tiếp →</button>
+      </div>
+      <button class="btn-next show" id="examSubmit" style="background:#15803d;">Nộp bài kiểm tra</button>
+    </div>
+    <div class="exam-nav-wrap">
+      <div class="exam-nav-title">
+        <span>Danh sách câu hỏi</span>
+        <span class="exam-nav-legend"><span><i class="exam-nav-dot done"></i> Đã chọn</span><span><i class="exam-nav-dot"></i> Chưa chọn</span></span>
+      </div>
+      <div class="exam-nav-grid" id="examNav"></div>
+    </div>
+  </div>
+
+  <div id="submitConfirm" class="submit-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="submitConfirmTitle">
+    <div class="submit-confirm-box">
+      <h3 id="submitConfirmTitle">Xác nhận nộp bài</h3>
+      <p id="submitConfirmText">Bạn có chắc chắn muốn nộp bài không?</p>
+      <div class="submit-confirm-actions">
+        <button type="button" class="secondary" id="cancelSubmit">Tiếp tục làm bài</button>
+        <button type="button" id="confirmSubmit" style="background:#15803d;color:#fff;">Nộp bài</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="finish" id="finishScreen">
+    <div class="finish-icon">🎉</div>
+    <h2>Hoàn thành!</h2>
+    <p id="finishMessage">Bạn đã hoàn thành phần học.</p>
+    <div class="finish-score" id="finishScore">150 / 150</div>
+    <p class="finish-ok" id="finishNote">Kết quả của bạn</p>
+    <div class="exam-review" id="examReview"></div>
+    <button class="btn-restart" id="btnRestart">🔀 Làm lại</button>
+    <button class="back-mode" type="button" onclick="backToModes()" style="margin-left:8px;">← Chọn chế độ</button>
+  </div>
+</div>
+
+<script>
+var LETTERS = ["A","B","C","D"];
+var TOTAL = 150;
+
+var BANK = [{"n":1,"q":"Đặc điểm chủ yếu của nhà ở giai đoạn 1954–1976 tại Việt Nam là gì?","o":["Chủ yếu là nhà thấp tầng, 1–5 tầng","Chủ yếu là nhà siêu cao tầng","Chủ yếu là nhà thép tiền chế","Chủ yếu là nhà lắp ghép nhẹ khung thép"],"a":"A"},{"n":2,"q":"Kết cấu chịu lực phổ biến trong giai đoạn 1954–1976 là:","o":["Tường xây gạch hoặc khung bê tông cốt thép","Khung thép liên hợp","Kết cấu composite","Kết cấu dây treo"],"a":"A"},{"n":3,"q":"Loại nhà lắp ghép phổ biến nhất giai đoạn 1960–1976 là:","o":["Nhà lắp ghép tấm lớn","Nhà lắp ghép tấm nhỏ","Nhà khung thép nhẹ","Nhà module container"],"a":"A"},{"n":4,"q":"Giai đoạn 1976–1986 phổ biến loại nhà nào?","o":["Nhà lắp ghép tấm lớn 5 tầng","Nhà siêu cao tầng trên 40 tầng","Nhà thép tiền chế","Nhà gỗ truyền thống"],"a":"A"},{"n":5,"q":"Mẫu nhà lắp ghép Đạo Tú do quốc gia nào thiết kế?","o":["Đức","Nhật Bản","Liên Xô","Pháp"],"a":"A"},{"n":6,"q":"Công nghệ cọc khoan nhồi được áp dụng mạnh ở Việt Nam từ giai đoạn nào?","o":["1986–1997","1954–1976","1976–1986","Trước 1954"],"a":"A"},{"n":7,"q":"Giải pháp kết cấu chủ yếu của nhà cao tầng giai đoạn 1990 là:","o":["Khung – vách bê tông cốt thép đổ tại chỗ","Kết cấu gỗ truyền thống","Kết cấu dây treo","Kết cấu khung thép nhẹ"],"a":"A"},{"n":8,"q":"Landmark 81 có số tầng là:","o":["81 tầng","68 tầng","72 tầng","65 tầng"],"a":"A"},{"n":9,"q":"Bitexco Financial Tower hoàn thành năm:","o":["2010","2014","2019","2005"],"a":"A"},{"n":10,"q":"Nhà xây gạch đá có hệ chịu lực chính là:","o":["Tường chịu lực","Cột thép","Dây treo","Khung composite"],"a":"A"},{"n":11,"q":"Công nghệ thi công móng hiện đại được áp dụng rộng rãi là:","o":["Top–down","Đào thủ công","Đóng cọc tre","Móng đá hộc"],"a":"A"},{"n":12,"q":"Landmark 81 có chiều cao:","o":["469,5 m","336 m","262 m","206 m"],"a":"A"},{"n":13,"q":"Bitexco Financial Tower nằm tại:","o":["TP. Hồ Chí Minh","Hà Nội","Đà Nẵng","Hải Phòng"],"a":"A"},{"n":14,"q":"Công nghệ xây gạch đá có hệ chịu lực chính là:","o":["Tường chịu lực","Cột thép","Vách kính","Dàn không gian"],"a":"A"},{"n":15,"q":"Ưu điểm của nhà xây gạch là:","o":["Thi công đơn giản, kỹ thuật phổ biến","Chịu động đất tốt","Thi công rất nhanh cho nhà cao tầng","Ít vật liệu"],"a":"A"},{"n":16,"q":"Kết cấu bê tông cốt thép toàn khối có ưu điểm:","o":["Độ cứng và ổn định cao","Không cần cốp pha","Không phụ thuộc thời tiết","Giá rẻ tuyệt đối"],"a":"A"},{"n":17,"q":"Nhược điểm của bê tông toàn khối là:","o":["Tốn ván khuôn và chịu ảnh hưởng thời tiết","Khó thiết kế","Không chịu lực tốt","Không phổ biến"],"a":"A"},{"n":18,"q":"Công nghệ bán lắp ghép là:","o":["Lắp cấu kiện chế tạo sẵn rồi đổ bê tông hoàn thiện","Lắp hoàn toàn tại nhà máy","Đổ bê tông toàn khối","Lắp ghép thép"],"a":"A"},{"n":19,"q":"Công nghệ sàn nhẹ Vinaconex Xuân Mai thuộc loại:","o":["Bán lắp ghép","Toàn khối","Lắp ghép hoàn toàn","Sàn gỗ"],"a":"A"},{"n":20,"q":"Ưu điểm của bán lắp ghép là:","o":["Rút ngắn tiến độ và tiết kiệm chi phí","Không cần cẩu","Không cần thiết bị","Tự thi công thủ công"],"a":"A"},{"n":21,"q":"Công nghệ lắp ghép là:","o":["Lắp các cấu kiện chế tạo sẵn tại hiện trường","Đổ bê tông tại chỗ","Xây gạch đá","Đổ bê tông thủ công"],"a":"A"},{"n":22,"q":"Ưu điểm của lắp ghép là:","o":["Chất lượng cao và thi công nhanh","Không cần thiết bị","Phù hợp mọi kiến trúc","Không cần đầu tư"],"a":"A"},{"n":23,"q":"Nhược điểm của lắp ghép là:","o":["Chi phí đầu tư ban đầu lớn","Thi công chậm","Chất lượng thấp","Không chịu lực"],"a":"A"},{"n":24,"q":"Cấu kiện lắp ghép không bao gồm:","o":["Gạch xây","Dầm","Cột","Bản sàn"],"a":"A"},{"n":25,"q":"Mức độ hoàn thiện của nhà lắp ghép là:","o":["Cao","Thấp","Không xác định","Phụ thuộc thời tiết"],"a":"A"},{"n":26,"q":"Công nghệ xây dựng nhà hiện đại nhằm mục tiêu:","o":["Nâng cao chất lượng và rút ngắn tiến độ","Tăng lao động thủ công","Giảm cơ giới hóa","Tăng chi phí"],"a":"A"},{"n":27,"q":"Nhà cao tầng sau năm 2006 thường có số tầng:","o":["Trên 30 tầng","Dưới 10 tầng","5 tầng","1 tầng"],"a":"A"},{"n":28,"q":"Công trình siêu cao tầng có số tầng lớn nhất hiện nay tại Việt Nam là:","o":["Landmark 81","Lotte Center","Bitexco","Keangnam"],"a":"A"},{"n":29,"q":"Công nghệ cốp pha trượt thường dùng cho:","o":["Lõi cứng nhà cao tầng","Nhà cấp 4","Nhà gạch","Móng đơn"],"a":"A"},{"n":30,"q":"Xu hướng công nghệ xây dựng hiện nay là:","o":["Kết hợp công nghệ hiện đại và truyền thống","Chỉ dùng thủ công","Chỉ dùng lắp ghép","Không đổi mới"],"a":"A"},{"n":31,"q":"Nền đất yếu là nền đất có đặc điểm:","o":["Không đủ sức chịu tải và biến dạng lớn","Cường độ cao","Độ chặt lớn","Ít lún"],"a":"A"},{"n":32,"q":"Mục đích chính của việc xử lý nền đất yếu là:","o":["Tăng sức chịu tải và giảm độ lún","Giảm chi phí thiết kế","Tăng chiều sâu móng","Tăng tải trọng công trình"],"a":"A"},{"n":33,"q":"Đất yếu thường có sức chịu tải:","o":["Nhỏ (0,5–1 kg/cm²)","Lớn hơn 5 kg/cm²","Không đổi","Phụ thuộc kết cấu"],"a":"A"},{"n":34,"q":"Loại đất nào sau đây thuộc nhóm đất yếu?","o":["Đất sét mềm","Đá gốc","Đất sỏi chặt","Đá bazan đặc chắc"],"a":"A"},{"n":35,"q":"Phương pháp đầm chặt lớp đất mặt áp dụng tốt khi:","o":["Độ ẩm đất nhỏ","Độ ẩm đất rất cao","Đất bão hòa nước","Có mực nước ngầm lớn"],"a":"A"},{"n":36,"q":"Phương pháp đầm chặt lớp đất mặt thường sử dụng:","o":["Đầm xung kích","Đầm bàn","Đầm lăn","Đầm tay"],"a":"A"},{"n":37,"q":"Cọc cát có tác dụng chính là:","o":["Thoát nước và gia cố nền đất yếu","Truyền tải trọng như cọc cứng","Làm móng sâu","Thay thế móng bè"],"a":"A"},{"n":38,"q":"Cọc cát thường được dùng khi lớp đất yếu có chiều dày:","o":["Lớn hơn 3m","Nhỏ hơn 1m","Bằng 1m","Không phụ thuộc"],"a":"A"},{"n":39,"q":"Ưu điểm nổi bật của cọc cát là:","o":["Thi công đơn giản, vật liệu rẻ","Chịu tải trọng lớn","Không cần thiết bị","Không gây lún"],"a":"A"},{"n":40,"q":"Cọc vôi thường dùng để xử lý đất:","o":["Than bùn, bùn, sét dẻo nhão","Đá gốc","Cát chặt","Đất sỏi"],"a":"A"},{"n":41,"q":"Sau khi xử lý bằng cọc vôi, lực dính của đất:","o":["Tăng lên 1,5–3 lần","Giảm mạnh","Không thay đổi","Bị mất hoàn toàn"],"a":"A"},{"n":42,"q":"Cọc đất – xi măng được tạo thành bằng cách:","o":["Trộn đất tại chỗ với xi măng","Đóng cọc bê tông","Ép cọc thép","Khoan lấy đất lên"],"a":"A"},{"n":43,"q":"Hàm lượng xi măng trong cọc đất – xi măng thường là:","o":["7–15%","1–3%","20–30%","Trên 50%"],"a":"A"},{"n":44,"q":"Phương pháp đệm cát áp dụng tốt khi lớp đất yếu:","o":["Có chiều dày nhỏ hơn 3m","Rất dày","Là đá gốc","Có tải trọng lớn"],"a":"A"},{"n":45,"q":"Tác dụng chính của lớp đệm cát là:","o":["Phân bố lại ứng suất và giảm lún","Tăng tải trọng","Thay móng sâu","Giảm chiều cao nhà"],"a":"A"},{"n":46,"q":"Phương pháp gia tải nén trước nhằm mục đích:","o":["Làm nền lún trước khi xây dựng","Tăng chiều cao móng","Giảm kích thước móng","Tăng số tầng"],"a":"A"},{"n":47,"q":"Gia tải nén trước thường kết hợp với:","o":["Giếng cát hoặc bấc thấm","Cọc khoan nhồi","Móng bè","Tường vây"],"a":"A"},{"n":48,"q":"Bấc thấm có tác dụng chính là:","o":["Thoát nước thẳng đứng trong đất yếu","Truyền tải trọng","Chống sạt lở","Làm móng"],"a":"A"},{"n":49,"q":"Cấu tạo bấc thấm gồm:","o":["Lõi nhựa và vải địa kỹ thuật","Thép và bê tông","Gỗ và vải","Đá và cát"],"a":"A"},{"n":50,"q":"Hệ số thấm của bấc thấm PVD:","o":["Lớn hơn nhiều so với đất sét","Nhỏ hơn đất sét","Bằng đất sét","Không xác định"],"a":"A"},{"n":51,"q":"Cọc xi măng đất được thi công theo phương pháp:","o":["Khoan trộn sâu","Đóng búa","Ép tĩnh","Đào thủ công"],"a":"A"},{"n":52,"q":"Cường độ chịu nén của cọc xi măng đất khoảng:","o":["20–250 kg/cm²","Dưới 10 kg/cm²","Trên 500 kg/cm²","Không xác định"],"a":"A"},{"n":53,"q":"Công nghệ trộn ướt sử dụng:","o":["Phụt vữa xi măng cao áp","Xi măng khô","Đất sét","Cát khô"],"a":"A"},{"n":54,"q":"Công nghệ trộn ướt đơn pha là:","o":["Phụt vữa vừa cắt đất vừa trộn","Phụt khí","Phụt nước","Phụt khô"],"a":"A"},{"n":55,"q":"Công nghệ trộn khô sử dụng:","o":["Xi măng khô trộn với đất","Vữa xi măng","Bê tông tươi","Đá dăm"],"a":"A"},{"n":56,"q":"Thiết bị thi công cọc xi măng đất gồm:","o":["Máy khoan và silo xi măng","Máy ép cọc","Cần trục","Xe lu"],"a":"A"},{"n":57,"q":"Móng Top–Base là loại móng:","o":["Không dùng cọc","Móng cọc khoan nhồi","Móng sâu","Móng tre"],"a":"A"},{"n":58,"q":"Top–Block có hình dạng:","o":["Hình phễu","Hình trụ","Hình hộp","Hình cầu"],"a":"A"},{"n":59,"q":"Vật liệu chèn giữa các Top–Block thường là:","o":["Đá dăm","Cát mịn","Đất sét","Bê tông"],"a":"A"},{"n":60,"q":"Ưu điểm nổi bật của móng Top–Base là:","o":["Giảm chi phí và tăng khả năng chịu lực","Thi công phức tạp","Cần thiết bị đặc biệt","Chỉ dùng cho móng sâu"],"a":"A"},{"n":61,"q":"Công nghệ móng Top–Base có nguồn gốc từ:","o":["Nhật Bản và Hàn Quốc","Mỹ","Đức","Pháp"],"a":"A"},{"n":62,"q":"Móng Top–Base chỉ áp dụng cho:","o":["Móng nông","Móng cọc sâu","Móng giếng","Móng treo"],"a":"A"},{"n":63,"q":"Phương pháp Bottom–Up là:","o":["Đào đất xong rồi thi công từ dưới lên","Thi công từ trên xuống","Thi công đồng thời","Không đào đất"],"a":"A"},{"n":64,"q":"Ưu điểm của phương pháp Bottom–Up là:","o":["Thi công đơn giản, dễ kiểm soát","Tiết kiệm mặt bằng","Không cần chống vách","Thời gian ngắn"],"a":"A"},{"n":65,"q":"Nhược điểm của Bottom–Up là:","o":["Khó áp dụng cho hố đào sâu, mặt bằng hẹp","Chất lượng kém","Không an toàn","Không phổ biến"],"a":"A"},{"n":66,"q":"Biện pháp giữ vách hố đào phổ biến là:","o":["Cừ thép, cừ gỗ","Tường gạch","Đổ đất","Ván khuôn"],"a":"A"},{"n":67,"q":"Khi đào hố móng sâu, cần chú ý:","o":["Ổn định vách và thoát nước","Tăng tải trọng","Giảm chiều sâu","Không cần biện pháp"],"a":"A"},{"n":68,"q":"Phương pháp thi công tường chắn đất thường dùng:","o":["Cọc khoan nhồi barrette","Cọc tre","Cọc gỗ","Móng đơn"],"a":"A"},{"n":69,"q":"Tường vây barrette được thi công bằng:","o":["Gầu đào chuyên dụng","Máy ép cọc","Đầm rung","Đào thủ công"],"a":"A"},{"n":70,"q":"Vai trò chính của tường vây là:","o":["Giữ đất và nước ngầm","Chịu tải toàn bộ công trình","Làm móng chính","Trang trí"],"a":"A"},{"n":71,"q":"Hệ chống trong hố đào có tác dụng:","o":["Chống áp lực đất lên vách","Tăng tải trọng","Thay tường vây","Tăng độ sâu"],"a":"A"},{"n":72,"q":"Neo đất thường dùng khi:","o":["Cần không gian thi công rộng","Hố đào nông","Đất cứng","Không có tải"],"a":"A"},{"n":73,"q":"Phương pháp Bottom–Up phù hợp nhất với:","o":["Công trình ít tầng hầm","Công trình siêu cao tầng","Đất rất yếu","Mặt bằng hẹp"],"a":"A"},{"n":74,"q":"Khi mực nước ngầm cao, cần:","o":["Biện pháp hạ nước ngầm","Bỏ thi công","Tăng tải","Không đào"],"a":"A"},{"n":75,"q":"Mục tiêu chung của công nghệ thi công móng là:","o":["Đảm bảo ổn định và an toàn công trình","Giảm số tầng","Giảm chiều cao","Tăng kiến trúc"],"a":"A"},{"n":76,"q":"Ưu điểm lớn nhất của ván khuôn leo là:","o":["Tăng tốc độ thi công theo chiều cao","Giá thành thấp tuyệt đối","Không cần cẩu tháp","Không cần nhân công"],"a":"A"},{"n":77,"q":"Phần thân công trình bao gồm:","o":["Cột, dầm, sàn, vách, lõi cứng","Móng và cọc","Tường chắn đất","Hố móng"],"a":"A"},{"n":78,"q":"Ván khuôn dùng trong xây dựng nhằm:","o":["Định hình và giữ ổn định bê tông tươi","Trang trí công trình","Chịu tải trọng sử dụng","Giảm trọng lượng kết cấu"],"a":"A"},{"n":79,"q":"Yêu cầu quan trọng của ván khuôn là:","o":["Đủ độ cứng, kín khít và dễ tháo lắp","Nhẹ và rẻ nhất có thể","Chỉ dùng một lần","Không cần chính xác"],"a":"A"},{"n":80,"q":"Ván khuôn truyền thống thường làm bằng:","o":["Gỗ","Nhựa","Thép mỏng","Nhôm"],"a":"A"},{"n":81,"q":"Ưu điểm của ván khuôn gỗ là:","o":["Dễ gia công, linh hoạt","Độ bền rất cao","Dùng lâu dài","Không biến dạng"],"a":"A"},{"n":82,"q":"Nhược điểm của ván khuôn gỗ là:","o":["Tuổi thọ thấp, dễ cong vênh","Nặng","Khó chế tạo","Giá cao"],"a":"A"},{"n":83,"q":"Ván khuôn thép có ưu điểm:","o":["Độ chính xác cao, dùng nhiều lần","Giá rẻ","Nhẹ","Dễ cong"],"a":"A"},{"n":84,"q":"Nhược điểm của ván khuôn thép là:","o":["Nặng và chi phí đầu tư lớn","Độ bền thấp","Không tái sử dụng","Khó lắp dựng"],"a":"A"},{"n":85,"q":"Ván khuôn nhôm thường dùng cho:","o":["Nhà cao tầng thi công lặp lại nhiều tầng","Nhà cấp 4","Công trình tạm","Móng sâu"],"a":"A"},{"n":86,"q":"Ván khuôn trượt thường áp dụng cho:","o":["Lõi cứng, ống khói, silo","Móng đơn","Dầm thấp","Nhà một tầng"],"a":"A"},{"n":87,"q":"Đặc điểm của ván khuôn trượt là:","o":["Thi công liên tục theo chiều cao","Thi công từng tầng rời rạc","Tháo lắp nhiều lần","Không cần thiết bị"],"a":"A"},{"n":88,"q":"Ưu điểm lớn nhất của ván khuôn trượt là:","o":["Rút ngắn tiến độ thi công","Giá thành thấp","Không cần nhân công","Không cần bê tông"],"a":"A"},{"n":89,"q":"Nhược điểm của ván khuôn trượt là:","o":["Yêu cầu kỹ thuật và tổ chức cao","Không dùng được cho nhà cao tầng","Chất lượng thấp","Không an toàn"],"a":"A"},{"n":90,"q":"Ván khuôn leo thường dùng cho:","o":["Nhà cao tầng có lõi cứng","Nhà thấp tầng","Móng băng","Nhà gỗ"],"a":"A"},{"n":91,"q":"Ván khuôn leo được nâng lên bằng:","o":["Cần trục hoặc hệ kích","Sức người","Xe nâng tay","Con lăn"],"a":"A"},{"n":92,"q":"Ưu điểm của ván khuôn leo là:","o":["An toàn và phù hợp nhà cao tầng","Không cần thiết bị","Giá rẻ","Không cần kiểm soát"],"a":"A"},{"n":93,"q":"Ván khuôn bay thường dùng cho:","o":["Sàn nhà cao tầng","Móng sâu","Tường chắn đất","Cọc khoan nhồi"],"a":"A"},{"n":94,"q":"Đặc điểm của ván khuôn bay là:","o":["Di chuyển nguyên khối giữa các tầng","Tháo rời từng tấm","Dùng một lần","Không cần cẩu"],"a":"A"},{"n":95,"q":"Ưu điểm của ván khuôn bay là:","o":["Giảm nhân công và tăng năng suất","Giá rẻ","Dễ hỏng","Ít chính xác"],"a":"A"},{"n":96,"q":"Bê tông dùng trong nhà cao tầng thường là:","o":["Bê tông thương phẩm","Bê tông trộn tay","Bê tông đất","Bê tông gạch"],"a":"A"},{"n":97,"q":"Ưu điểm của bê tông thương phẩm là:","o":["Chất lượng ổn định, thi công nhanh","Giá rất rẻ","Không cần vận chuyển","Không cần kiểm tra"],"a":"A"},{"n":98,"q":"Phương pháp đổ bê tông phổ biến cho nhà cao tầng là:","o":["Bơm bê tông","Đổ thủ công","Gánh bê tông","Đổ bằng xe cút kít"],"a":"A"},{"n":99,"q":"Khi bơm bê tông lên cao cần chú ý:","o":["Độ sụt và phân tầng bê tông","Màu sắc bê tông","Nhiệt độ không khí","Hình dạng cốp pha"],"a":"A"},{"n":100,"q":"Cốt thép trong kết cấu bê tông có tác dụng:","o":["Chịu lực kéo","Chịu nén chính","Trang trí","Chống thấm"],"a":"A"},{"n":101,"q":"Thép dùng trong bê tông cốt thép phải đảm bảo:","o":["Cường độ và độ dẻo","Chỉ cần rẻ","Không cần tiêu chuẩn","Bất kỳ loại nào"],"a":"A"},{"n":102,"q":"Cốt thép được bố trí trong:","o":["Dầm, sàn, cột, vách","Lớp hoàn thiện","Lớp sơn","Lớp chống thấm"],"a":"A"},{"n":103,"q":"Sàn bê tông dự ứng lực có ưu điểm:","o":["Giảm chiều dày sàn, vượt nhịp lớn","Thi công thủ công","Giá rẻ tuyệt đối","Không cần thiết kế"],"a":"A"},{"n":104,"q":"Cáp dự ứng lực làm việc chủ yếu ở trạng thái:","o":["Kéo","Nén","Uốn","Xoắn"],"a":"A"},{"n":105,"q":"Bê tông dự ứng lực giúp:","o":["Giảm nứt và biến dạng","Tăng trọng lượng","Tăng chiều cao tầng","Giảm độ bền"],"a":"A"},{"n":106,"q":"Thứ tự thi công phần thân thông thường là:","o":["Cột → dầm → sàn","Sàn → cột → dầm","Dầm → móng → sàn","Móng → tường → mái"],"a":"A"},{"n":107,"q":"Trong thi công sàn, công tác quan trọng là:","o":["Chống đỡ ván khuôn","Sơn hoàn thiện","Lắp cửa","Ốp lát"],"a":"A"},{"n":108,"q":"Thời điểm tháo ván khuôn phụ thuộc vào:","o":["Cường độ bê tông đạt được","Thời tiết","Số tầng","Màu bê tông"],"a":"A"},{"n":109,"q":"Công tác bảo dưỡng bê tông nhằm:","o":["Đảm bảo cường độ thiết kế","Làm đẹp bề mặt","Giảm chiều dày","Tăng độ sụt"],"a":"A"},{"n":110,"q":"Bảo dưỡng bê tông thường thực hiện bằng:","o":["Giữ ẩm và che phủ","Đốt nóng","Phơi khô","Sơn phủ"],"a":"A"},{"n":111,"q":"Thi công phần thân nhà cao tầng cần chú ý:","o":["An toàn lao động","Trang trí nội thất","Màu sơn","Cảnh quan"],"a":"A"},{"n":112,"q":"Biện pháp an toàn khi thi công trên cao là:","o":["Lưới an toàn, lan can, dây đai","Không cần bảo hộ","Chỉ cần biển báo","Làm nhanh"],"a":"A"},{"n":113,"q":"Công nghệ thi công hiện đại giúp:","o":["Tăng năng suất và chất lượng","Tăng lao động thủ công","Giảm cơ giới hóa","Kéo dài tiến độ"],"a":"A"},{"n":114,"q":"Ván khuôn hiện đại thường hướng tới:","o":["Tái sử dụng nhiều lần","Dùng một lần","Chỉ dùng gỗ","Không tiêu chuẩn"],"a":"A"},{"n":115,"q":"Mục tiêu chung của thi công phần thân là:","o":["Đảm bảo an toàn, chất lượng, tiến độ","Giảm số tầng","Giảm chiều cao","Tăng chi phí"],"a":"A"},{"n":116,"q":"Trong nhà cao tầng, lõi cứng thường chịu:","o":["Tải trọng ngang","Tải trọng hoàn thiện","Tải trọng sử dụng","Tải trọng nhiệt"],"a":"A"},{"n":117,"q":"Lõi cứng thường được thi công bằng:","o":["Ván khuôn trượt hoặc leo","Ván khuôn gỗ rời","Xây gạch","Lắp ghép gỗ"],"a":"A"},{"n":118,"q":"Kiểm soát chất lượng bê tông gồm:","o":["Kiểm tra vật liệu, thi công và bảo dưỡng","Chỉ kiểm tra màu sắc","Không cần kiểm tra","Kiểm tra sau hoàn thiện"],"a":"A"},{"n":119,"q":"Công nghệ thi công phần thân ảnh hưởng trực tiếp đến:","o":["Tiến độ và chất lượng công trình","Vị trí xây dựng","Pháp lý dự án","Giá đất"],"a":"A"},{"n":120,"q":"Xu hướng thi công phần thân hiện nay là:","o":["Cơ giới hóa và công nghiệp hóa","Hoàn toàn thủ công","Giảm thiết bị","Không đổi mới"],"a":"A"},{"n":121,"q":"Công nghệ thi công lắp ghép là:","o":["Thi công bằng cách lắp các cấu kiện chế tạo sẵn tại hiện trường","Đổ bê tông toàn khối","Xây gạch thủ công","Thi công không dùng thiết bị"],"a":"A"},{"n":122,"q":"Đặc điểm chính của công nghệ lắp ghép là:","o":["Mức độ công nghiệp hóa cao","Phụ thuộc nhiều lao động thủ công","Thi công chậm","Chất lượng không ổn định"],"a":"A"},{"n":123,"q":"Cấu kiện lắp ghép thường được chế tạo tại:","o":["Nhà máy hoặc bãi đúc","Trực tiếp trên sàn công trình","Tại hiện trường bằng tay","Trong kho vật tư"],"a":"A"},{"n":124,"q":"Ưu điểm lớn nhất của nhà lắp ghép là:","o":["Thi công nhanh, chất lượng đồng đều","Giá rẻ tuyệt đối","Không cần thiết kế","Không cần bảo trì"],"a":"A"},{"n":125,"q":"Nhược điểm của công nghệ lắp ghép là:","o":["Chi phí đầu tư ban đầu lớn","Không đảm bảo chịu lực","Không an toàn","Không dùng cho nhà cao tầng"],"a":"A"},{"n":126,"q":"Công nghệ lắp ghép phù hợp nhất với:","o":["Nhà ở xây dựng hàng loạt","Nhà đơn lẻ phức tạp","Công trình tạm","Nhà cấp 4 nông thôn"],"a":"A"},{"n":127,"q":"Kết cấu chịu lực chính của nhà lắp ghép thường là:","o":["Khung bê tông cốt thép lắp ghép","Tường gạch chịu lực","Kết cấu gỗ","Khung tre"],"a":"A"},{"n":128,"q":"Cấu kiện sàn lắp ghép phổ biến là:","o":["Tấm sàn bê tông cốt thép","Sàn gỗ","Sàn đất","Sàn đá hộc"],"a":"A"},{"n":129,"q":"Liên kết giữa các cấu kiện lắp ghép phải đảm bảo:","o":["Chịu lực và làm việc đồng thời","Chỉ cần thẩm mỹ","Không cần tính toán","Dễ tháo rời"],"a":"A"},{"n":130,"q":"Liên kết ướt trong lắp ghép là:","o":["Dùng bê tông hoặc vữa để liên kết","Dùng bulông","Dùng hàn","Dùng chốt gỗ"],"a":"A"},{"n":131,"q":"Ưu điểm của liên kết ướt là:","o":["Đảm bảo làm việc như kết cấu toàn khối","Thi công rất nhanh","Dễ tháo lắp","Không cần bảo dưỡng"],"a":"A"},{"n":132,"q":"Liên kết khô trong lắp ghép thường dùng:","o":["Bulông, bản mã, hàn","Bê tông tươi","Vữa xi măng","Keo xây dựng"],"a":"A"},{"n":133,"q":"Ưu điểm của liên kết khô là:","o":["Thi công nhanh và dễ kiểm soát","Chịu lực kém","Không an toàn","Không dùng được"],"a":"A"},{"n":134,"q":"Nhược điểm của liên kết khô là:","o":["Khả năng làm việc toàn khối kém hơn","Thi công chậm","Không tháo lắp được","Giá rất cao"],"a":"A"},{"n":135,"q":"Thiết bị nâng chính trong lắp ghép là:","o":["Cần trục","Xe cút kít","Ròng rọc tay","Đòn bẩy"],"a":"A"},{"n":136,"q":"Khi lắp ghép cấu kiện, cần chú ý:","o":["An toàn và độ chính xác lắp dựng","Chỉ cần nhanh","Không cần kiểm tra","Không cần giám sát"],"a":"A"},{"n":137,"q":"Trình tự lắp ghép nhà nhiều tầng thường là:","o":["Lắp cột → dầm → sàn","Lắp sàn → cột → dầm","Lắp móng → mái → sàn","Không theo trình tự"],"a":"A"},{"n":138,"q":"Nhà lắp ghép tấm lớn thường dùng cho:","o":["Chung cư 5–9 tầng","Nhà cao trên 50 tầng","Nhà cấp 4","Nhà gỗ"],"a":"A"},{"n":139,"q":"Nhà lắp ghép tấm nhỏ có ưu điểm:","o":["Linh hoạt trong bố trí mặt bằng","Thi công rất chậm","Chỉ dùng cho nhà thấp","Không phổ biến"],"a":"A"},{"n":140,"q":"Công nghệ bán lắp ghép là:","o":["Kết hợp cấu kiện lắp ghép và bê tông toàn khối","Chỉ lắp ghép hoàn toàn","Chỉ đổ bê tông","Không dùng bê tông"],"a":"A"},{"n":141,"q":"Sàn nhẹ Vinaconex Xuân Mai thuộc loại:","o":["Công nghệ bán lắp ghép","Công nghệ toàn khối","Công nghệ lắp ghép hoàn toàn","Công nghệ gỗ"],"a":"A"},{"n":142,"q":"Ưu điểm của công nghệ bán lắp ghép là:","o":["Rút ngắn tiến độ và tiết kiệm chi phí","Thi công chậm","Chất lượng thấp","Không an toàn"],"a":"A"},{"n":143,"q":"Nhược điểm của bán lắp ghép là:","o":["Cần thiết kế đồng bộ ngay từ đầu","Không dùng thiết bị","Không cần kiểm soát","Không phổ biến"],"a":"A"},{"n":144,"q":"Nhà lắp ghép yêu cầu thiết kế:","o":["Tiêu chuẩn hóa và đồng bộ cấu kiện","Tùy ý từng tầng","Không cần thiết kế","Chỉ thiết kế kiến trúc"],"a":"A"},{"n":145,"q":"Kiểm soát chất lượng trong lắp ghép gồm:","o":["Kiểm tra chế tạo, vận chuyển và lắp dựng","Chỉ kiểm tra sau hoàn thiện","Không cần kiểm tra","Kiểm tra hình thức"],"a":"A"},{"n":146,"q":"Vận chuyển cấu kiện lắp ghép cần:","o":["Đảm bảo không nứt vỡ, biến dạng","Không cần bảo vệ","Chỉ cần nhanh","Không cần kiểm tra"],"a":"A"},{"n":147,"q":"Nhà lắp ghép phù hợp với xu hướng:","o":["Công nghiệp hóa xây dựng","Thủ công hóa","Giảm cơ giới hóa","Xây dựng truyền thống"],"a":"A"},{"n":148,"q":"Công nghệ lắp ghép giúp:","o":["Giảm thời gian thi công","Tăng lao động thủ công","Giảm chất lượng","Tăng sai sót"],"a":"A"},{"n":149,"q":"Trong nhà lắp ghép, công tác hoàn thiện:","o":["Có thể tiến hành song song với lắp dựng","Chỉ làm sau khi xong toàn bộ","Không cần hoàn thiện","Rất phức tạp"],"a":"A"},{"n":150,"q":"Mục tiêu chung của công nghệ lắp ghép là:","o":["Nâng cao chất lượng, năng suất và hiệu quả xây dựng","Giảm số tầng","Giảm chiều cao","Tăng chi phí"],"a":"A"}];
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+var doneSet = {};
+var retryMap = {};
+var queue = [];
+var currentQ = null;
+var answered = false;
+var queueIndex = 0;
+var doneCount = 0;
+
+function prepareQ(item) {
+  var opts = shuffle(item.o.map(function(text, i) {
+    return { text: text, correct: LETTERS[i] === item.a };
+  }));
+  return { n: item.n, q: item.q, opts: opts };
+}
+
+function startSession() {
+  var remaining = BANK.filter(function(q) { return !doneSet[q.n]; });
+  var shuffled = shuffle(remaining);
+  queue = shuffled.map(prepareQ);
+  queueIndex = 0;
+  document.getElementById('finishScreen').className = 'finish';
+  document.getElementById('quizArea').style.display = '';
+  nextQuestion();
+}
+
+function nextQuestion() {
+  // Find due retry first
+  var dueRetry = null, dueIdx = -1;
+  for (var i = 0; i < queue.length; i++) {
+    var q = queue[i];
+    if (!doneSet[q.n] && retryMap[q.n] !== undefined && retryMap[q.n] <= queueIndex) {
+      dueRetry = q; dueIdx = i; break;
+    }
+  }
+  if (dueRetry) {
+    queue.splice(dueIdx, 1);
+    currentQ = dueRetry;
+    renderQ(true); return;
+  }
+
+  // Next fresh
+  var picked = null, pickedIdx = -1;
+  for (var i = 0; i < queue.length; i++) {
+    var q = queue[i];
+    if (doneSet[q.n]) continue;
+    var r = retryMap[q.n];
+    if (r === undefined || r <= queueIndex) {
+      picked = q; pickedIdx = i; break;
+    }
+  }
+  if (picked) {
+    queue.splice(pickedIdx, 1);
+    currentQ = picked;
+    renderQ(false); return;
+  }
+
+  // All have future retries — pick earliest
+  var earliest = null, earliestIdx = -1;
+  for (var i = 0; i < queue.length; i++) {
+    var q = queue[i];
+    if (doneSet[q.n]) continue;
+    if (!earliest || retryMap[q.n] < retryMap[earliest.n]) {
+      earliest = q; earliestIdx = i;
+    }
+  }
+  if (earliest) {
+    queue.splice(earliestIdx, 1);
+    currentQ = earliest;
+    renderQ(false); return;
+  }
+
+  // Queue empty
+  if (doneCount >= TOTAL) { showFinish(); }
+  else { startSession(); }
+}
+
+function renderQ(isRetry) {
+  answered = false;
+  queueIndex++;
+  var q = currentQ;
+  document.getElementById('qNum').textContent = 'Câu ' + q.n;
+  var retryEl = document.getElementById('qRetry');
+  retryEl.className = isRetry ? 'tag-retry' : 'tag-retry hidden';
+  document.getElementById('qProg').textContent = '✅ ' + doneCount + ' / ' + TOTAL;
+  document.getElementById('qText').textContent = q.q;
+
+  var optsEl = document.getElementById('optsEl');
+  optsEl.innerHTML = '';
+  for (var i = 0; i < q.opts.length; i++) {
+    (function(opt, idx) {
+      var btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.setAttribute('type', 'button');
+      var letterSpan = document.createElement('span');
+      letterSpan.className = 'opt-letter';
+      letterSpan.textContent = LETTERS[idx];
+      var textSpan = document.createElement('span');
+      textSpan.className = 'opt-text';
+      textSpan.textContent = opt.text;
+      btn.appendChild(letterSpan);
+      btn.appendChild(textSpan);
+      btn.onclick = function() { selectAnswer(opt, idx); };
+      optsEl.appendChild(btn);
+    })(q.opts[i], i);
+  }
+
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('btnNext').className = 'btn-next';
+  updateKPI();
+}
+
+function selectAnswer(opt, idx) {
+  if (answered) return;
+  answered = true;
+  var q = currentQ;
+  var allBtns = document.getElementById('optsEl').getElementsByTagName('button');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].onclick = null;
+  }
+
+  var isCorrect = opt.correct;
+  allBtns[idx].className = 'opt ' + (isCorrect ? 'state-correct' : 'state-wrong');
+
+  // Highlight correct answer
+  for (var i = 0; i < q.opts.length; i++) {
+    if (q.opts[i].correct && i !== idx) {
+      allBtns[i].className = 'opt state-show';
+    }
+  }
+
+  var fb = document.getElementById('feedback');
+  if (isCorrect) {
+    fb.className = 'feedback fb-ok';
+    fb.textContent = '✅ Đúng rồi! Tuyệt vời!';
+    doneSet[q.n] = true;
+    doneCount++;
+    delete retryMap[q.n];
+  } else {
+    var correctText = '';
+    var correctLetter = '';
+    for (var i = 0; i < q.opts.length; i++) {
+      if (q.opts[i].correct) { correctText = q.opts[i].text; correctLetter = LETTERS[i]; break; }
+    }
+    fb.className = 'feedback fb-err';
+    fb.textContent = '❌ Sai! Đáp án đúng: ' + correctLetter + '. ' + correctText;
+    var delay = 4 + Math.floor(Math.random() * 6);
+    retryMap[q.n] = queueIndex + delay;
+    queue.push(prepareQ({ n: q.n, q: q.q, o: q.opts.map(function(o){ return o.text; }), a: LETTERS[q.opts.findIndex(function(o){ return o.correct; })] }));
+  }
+
+  updateKPI();
+  document.getElementById('btnNext').className = 'btn-next show';
+}
+
+function updateKPI() {
+  document.getElementById('kpiBadge').textContent = doneCount + ' / ' + TOTAL;
+  document.getElementById('kpiText').textContent = doneCount + ' câu đúng / ' + TOTAL + ' câu';
+  document.getElementById('kpiFill').style.width = ((doneCount / TOTAL) * 100) + '%';
+  document.getElementById('qProg').textContent = '✅ ' + doneCount + ' / ' + TOTAL;
+}
+
+function showFinish() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('finishScreen').className = 'finish show';
+  document.getElementById('finishScore').textContent = TOTAL + ' / ' + TOTAL;
+  updateKPI();
+}
+
+document.getElementById('btnNext').onclick = function() { nextQuestion(); };
+document.getElementById('btnRestart').onclick = function() {
+  doneSet = {}; retryMap = {}; queueIndex = 0; doneCount = 0;
+  updateKPI();
+  startSession();
+};
+
+// Fix findIndex for old WebKit (iPhone Zalo WebView)
+if (!Array.prototype.findIndex) {
+  Array.prototype.findIndex = function(fn) {
+    for (var i = 0; i < this.length; i++) { if (fn(this[i], i)) return i; }
+    return -1;
+  };
+}
+
+
+// ===== TWO MODES: STUDY (150) AND EXAM (50) =====
+var examMode = false;
+var examItems = [];
+var examIndex = 0;
+var examAnswers = {};
+var examSetName = "";
+var examSubmitted = false;
+var examSecondsLeft = 40 * 60;
+var examTimer = null;
+
+// The 50 questions below follow official exam paper 280 order.
+// They are selected from the supplied 150-question study bank.
+var EXAM_NUMBERS = [137,51,61,8,115,114,70,118,128,126,35,132,130,30,93,42,140,67,85,55,97,139,50,44,49,15,149,11,98,89,13,57,59,150,113,106,14,120,32,88,28,54,39,46,45,10,107,146,83,92];
+var EXAM_SET_427 = [{"n":1,"q":"Sàn nhẹ Vinaconex Xuân Mai thuộc loại:","o":["Công nghệ bán lắp ghép","Công nghệ toàn khối","Công nghệ sàn dự ứng lực căng sau","Công nghệ lắp ghép hoàn toàn"],"a":"A"},{"n":2,"q":"Giai đoạn 1976–1986 phổ biến loại nhà nào?","o":["Nhà thép tiền chế","Nhà siêu cao tầng trên 40 tầng","Nhà lắp ghép tấm lớn 5 tầng","Nhà gỗ truyền thống"],"a":"C"},{"n":3,"q":"Ưu điểm lớn nhất của nhà lắp ghép là:","o":["Thi công nhanh, chất lượng đồng đều","Giá rẻ tuyệt đối","Không cần thiết kế","Không cần bảo trì"],"a":"A"},{"n":4,"q":"Ưu điểm lớn nhất của ván khuôn trượt là:","o":["Không cần nhân công","Giá thành thấp","Rút ngắn tiến độ thi công","Không cần bê tông"],"a":"C"},{"n":5,"q":"Bấc thấm có tác dụng chính là:","o":["Chống sạt lở","Thoát nước thẳng đứng trong đất yếu","Truyền tải trọng","Làm móng"],"a":"B"},{"n":6,"q":"Tường vây barrette được thi công bằng:","o":["Đào thủ công","Gầu đào chuyên dụng","Máy ép cọc","Đầm rung"],"a":"B"},{"n":7,"q":"Phương pháp thi công tường chắn đất thường dùng:","o":["Cọc khoan nhồi barrette","Cọc tre","Móng đơn","Cọc gỗ"],"a":"A"},{"n":8,"q":"Phương pháp Bottom–Up phù hợp nhất với:","o":["Công trình siêu cao tầng","Công trình ít tầng hầm","Đất rất yếu","Mặt bằng hẹp"],"a":"B"},{"n":9,"q":"Mức độ hoàn thiện của nhà lắp ghép là:","o":["Cao","Không xác định","Thấp","Phụ thuộc thời tiết"],"a":"A"},{"n":10,"q":"Cốt thép trong kết cấu bê tông có tác dụng:","o":["Chịu lực kéo","Chống thấm","Trang trí","Chịu nén chính"],"a":"A"},{"n":11,"q":"Lõi cứng thường được thi công bằng:","o":["Lắp ghép gỗ","Ván khuôn trượt hoặc leo","Ván khuôn gỗ rời","Xây gạch"],"a":"B"},{"n":12,"q":"Kiểm soát chất lượng trong lắp ghép gồm:","o":["Không cần kiểm tra","Chỉ cần kiểm tra chế tạo","Chỉ kiểm tra sau hoàn thiện","Kiểm tra chế tạo, vận chuyển và lắp dựng"],"a":"D"},{"n":13,"q":"Sau khi xử lý bằng cọc vôi, lực dính của đất:","o":["Không thay đổi","Bị mất hoàn toàn","Giảm mạnh","Tăng lên 1,5–3 lần"],"a":"D"},{"n":14,"q":"Ưu điểm của bê tông thương phẩm là:","o":["Giá rất rẻ","Không cần vận chuyển","Chất lượng ổn định, thi công nhanh","Không cần kiểm tra"],"a":"C"},{"n":15,"q":"Nhược điểm của ván khuôn gỗ là:","o":["Giá cao","Khó chế tạo","Nặng","Tuổi thọ thấp, dễ cong vênh"],"a":"D"},{"n":16,"q":"Mục tiêu chung của thi công phần thân là:","o":["Tăng chi phí","Đảm bảo an toàn, chất lượng, tiến độ","Giảm chiều cao","Giảm số tầng"],"a":"B"},{"n":17,"q":"Ván khuôn trượt thường áp dụng cho:","o":["Móng đơn","Lõi cứng, ống khói, silo","Nhà một tầng","Dầm thấp"],"a":"B"},{"n":18,"q":"Ưu điểm của ván khuôn bay là:","o":["Ít chính xác","Giá rẻ","Dễ hỏng","Giảm nhân công và tăng năng suất"],"a":"D"},{"n":19,"q":"Khi lắp ghép cấu kiện, cần chú ý:","o":["Không cần giám sát","Không cần kiểm tra","Chỉ cần nhanh","An toàn và độ chính xác lắp dựng"],"a":"D"},{"n":20,"q":"Top–Block có hình dạng:","o":["Hình hộp","Hình trụ","Hình phễu","Hình cầu"],"a":"C"},{"n":21,"q":"Công nghệ móng Top–Base có nguồn gốc từ:","o":["Đức","Nhật Bản và Hàn Quốc","Pháp","Mỹ"],"a":"B"},{"n":22,"q":"Bảo dưỡng bê tông thường thực hiện bằng:","o":["Giữ ẩm và che phủ","Phơi khô","Đốt nóng","Sơn phủ"],"a":"A"},{"n":23,"q":"Cọc vôi thường dùng để xử lý đất:","o":["Đất sỏi","Than bùn, bùn, sét dẻo nhão","Cát chặt","Đá gốc"],"a":"B"},{"n":24,"q":"Bitexco Financial Tower hoàn thành năm:","o":["2019","2010","2005","2014"],"a":"B"},{"n":25,"q":"Thời điểm tháo ván khuôn phụ thuộc vào:","o":["Thời tiết","Màu bê tông","Số tầng","Cường độ bê tông đạt được"],"a":"D"},{"n":26,"q":"Nhược điểm của bê tông toàn khối là:","o":["Tốn ván khuôn và chịu ảnh hưởng thời tiết","Không chịu lực tốt","Khó thiết kế","Không phổ biến"],"a":"A"},{"n":27,"q":"Trong nhà cao tầng, lõi cứng thường chịu:","o":["Tải trọng nhiệt","Tải trọng ngang","Tải trọng sử dụng","Tải trọng hoàn thiện"],"a":"B"},{"n":28,"q":"Ván khuôn dùng trong xây dựng nhằm:","o":["Chịu tải trọng sử dụng","Giảm trọng lượng kết cấu","Định hình và giữ ổn định bê tông tươi","Trang trí công trình"],"a":"C"},{"n":29,"q":"Ưu điểm nổi bật của móng Top–Base là:","o":["Cần thiết bị đặc biệt","Thi công phức tạp","Chỉ dùng cho móng sâu","Giảm chi phí và tăng khả năng chịu lực"],"a":"D"},{"n":30,"q":"Ưu điểm của công nghệ bán lắp ghép là:","o":["Thi công chậm","Không cần nhiều máy móc, thiết bị hiện đại","Kết cấu có khả năng chịu lực, độ cứng vượt trội","Rút ngắn tiến độ và tiết kiệm chi phí"],"a":"D"},{"n":31,"q":"Kết cấu bê tông cốt thép toàn khối có ưu điểm:","o":["Giá rẻ tuyệt đối","Không cần cốp pha","Không phụ thuộc thời tiết","Độ cứng và ổn định cao"],"a":"D"},{"n":32,"q":"Ưu điểm của lắp ghép là:","o":["Không cần đầu tư","Phù hợp mọi kiến trúc","Chất lượng cao và thi công nhanh","Không cần thiết bị"],"a":"C"},{"n":33,"q":"Hệ số thấm của bấc thấm PVD:","o":["Nhỏ hơn đất sét","Bằng đất sét","Không xác định","Lớn hơn nhiều so với đất sét"],"a":"D"},{"n":34,"q":"Mục đích chính của việc xử lý nền đất yếu là:","o":["Giảm chi phí thiết kế","Tăng tải trọng công trình","Tăng chiều sâu móng","Tăng sức chịu tải và giảm độ lún"],"a":"D"},{"n":35,"q":"Phương pháp Bottom–Up là:","o":["Thi công đồng thời","Không đào đất","Đào đất xong rồi thi công từ dưới lên","Thi công từ trên xuống"],"a":"C"},{"n":36,"q":"Ưu điểm của phương pháp Bottom–Up là:","o":["Tiết kiệm mặt bằng","Thời gian ngắn","Thi công đơn giản, dễ kiểm soát","Không cần chống vách"],"a":"C"},{"n":37,"q":"Đặc điểm chính của công nghệ lắp ghép là:","o":["Phụ thuộc nhiều lao động thủ công","Chất lượng không ổn định","Thi công chậm, chi phí thấp","Mức độ công nghiệp hóa cao"],"a":"D"},{"n":38,"q":"Cường độ chịu nén của cọc xi măng đất khoảng:","o":["Trên 500 kg/cm²","Không xác định","20–250 kg/cm²","Dưới 10 kg/cm²"],"a":"C"},{"n":39,"q":"Ưu điểm của liên kết khô là:","o":["Thi công nhanh và dễ kiểm soát","Độ cứng lớn","Không cần thiết bị, máy móc","Không cần tính toán, kiểm tra"],"a":"A"},{"n":40,"q":"Phương pháp đổ bê tông phổ biến cho nhà cao tầng là:","o":["Đổ thủ công","Gánh bê tông","Bơm bê tông","Đổ bằng xe cút kít"],"a":"C"},{"n":41,"q":"Bê tông dự ứng lực giúp:","o":["Giảm nứt và biến dạng","Giảm độ bền","Tăng trọng lượng","Tăng chiều cao tầng"],"a":"A"},{"n":42,"q":"Ưu điểm của ván khuôn leo là:","o":["Không cần thiết bị","Không cần kiểm soát","An toàn và phù hợp nhà cao tầng","Giá rẻ"],"a":"C"},{"n":43,"q":"Cấu kiện sàn lắp ghép phổ biến là:","o":["Sàn liên hợp (sàn decking)","Cả 3 phương án đều đúng","Tấm sàn panel rỗng","Tấm sàn panel đặc"],"a":"B"},{"n":44,"q":"Đặc điểm của ván khuôn trượt là:","o":["Thi công từng tầng rời rạc","Tháo lắp nhiều lần","Không cần thiết bị","Thi công liên tục theo chiều cao"],"a":"D"},{"n":45,"q":"Khi đào hố móng sâu, cần chú ý:","o":["Tăng tải trọng","Ổn định vách và thoát nước","Giảm chiều sâu","Không cần biện pháp"],"a":"B"},{"n":46,"q":"Phương pháp đệm cát áp dụng tốt khi lớp đất yếu:","o":["Có tải trọng lớn","Có chiều dày nhỏ hơn 3m","Là đá gốc","Rất dày"],"a":"B"},{"n":47,"q":"Liên kết ướt trong lắp ghép là:","o":["Dùng bê tông hoặc vữa để liên kết","Dùng bulông","Dùng hàn","Dùng đinh tán"],"a":"A"},{"n":48,"q":"Công nghệ thi công lắp ghép là:","o":["Đổ bê tông toàn khối","Thi công không dùng thiết bị","Thi công bằng cách lắp các cấu kiện chế tạo sẵn tại hiện trường","Xây gạch thủ công"],"a":"C"},{"n":49,"q":"Công nghệ thi công hiện đại giúp:","o":["Tăng năng suất và chất lượng","Tăng lao động thủ công","Kéo dài tiến độ","Giảm cơ giới hóa"],"a":"A"},{"n":50,"q":"Gia tải nén trước thường kết hợp với:","o":["Tường vây","Cọc khoan nhồi","Móng bè","Giếng cát hoặc bấc thấm"],"a":"D"}];
+
+
+function byBankNumber(n) {
+  for (var i = 0; i < BANK.length; i++) if (BANK[i].n === n) return BANK[i];
+  return null;
+}
+function startStudy() {
+  examMode = false;
+  document.getElementById('modeScreen').className = 'mode-screen';
+  document.getElementById('examArea').className = 'hidden';
+  document.getElementById('appHeader').classList.remove('hidden');
+  document.querySelector('.kpi-wrap').classList.remove('hidden');
+  document.getElementById('kpiBadge').classList.remove('hidden');
+  document.getElementById('finishScreen').className = 'finish';
+  document.getElementById('quizArea').style.display = '';
+  document.getElementById('kpiBadge').textContent = '0 / 150';
+  document.getElementById('btnRestart').textContent = '🔀 Ôn lại (Random)';
+  doneSet = {}; retryMap = {}; queue = []; queueIndex = 0; doneCount = 0;
+  updateKPI();
+  startSession();
+}
+function startExam() {
+  examMode = true;
+  examSubmitted = false;
+  examIndex = 0;
+  examAnswers = {};
+  examItems = [];
+  examSecondsLeft = 40 * 60;
+  if (examTimer) clearInterval(examTimer);
+
+  // Randomly choose one of the two 50-question exam sets on every attempt.
+  var use427 = Math.random() < 0.5;
+  examSetName = use427 ? 'Mã đề 427' : 'Mã đề 280';
+  var sourceItems;
+  if (use427) {
+    sourceItems = shuffle(EXAM_SET_427.slice());
+    for (var k = 0; k < sourceItems.length; k++) {
+      var src = sourceItems[k];
+      var opts427 = shuffle(src.o.map(function(t, j) {
+        return { text:t, correct: LETTERS[j] === src.a };
+      }));
+      examItems.push({ n:src.n, q:src.q, opts:opts427 });
+    }
+  } else {
+    var randomizedNumbers = shuffle(EXAM_NUMBERS.slice());
+    for (var i = 0; i < randomizedNumbers.length; i++) {
+      var item = byBankNumber(randomizedNumbers[i]);
+      if (item) {
+        var opts = shuffle(item.o.map(function(t, j) {
+          return { text:t, correct: LETTERS[j] === item.a };
+        }));
+        if (randomizedNumbers[i] === 128) {
+          examItems.push({ n:item.n, q:'Cấu kiện sàn lắp ghép phổ biến là:', opts:shuffle([
+            {text:'Tấm sàn panel đặc', correct:false},
+            {text:'Sàn liên hợp (sàn decking)', correct:false},
+            {text:'Cả 3 phương án đều đúng', correct:true},
+            {text:'Tấm sàn panel rỗng', correct:false}
+          ])});
+        } else {
+          examItems.push({ n:item.n, q:item.q, opts:opts });
+        }
+      }
+    }
+  }
+  // The questions and answer positions are shuffled independently each time.
+  examItems = shuffle(examItems);
+  document.getElementById('modeScreen').className = 'mode-screen';
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('examArea').className = '';
+  document.getElementById('finishScreen').className = 'finish';
+  document.getElementById('appHeader').classList.add('hidden');
+  document.querySelector('.kpi-wrap').classList.add('hidden');
+  document.getElementById('kpiBadge').classList.add('hidden');
+  document.getElementById('btnRestart').textContent = 'Làm lại đề 50 câu';
+  renderExamNavigator();
+  renderExamQuestion();
+  updateExamClock();
+  examTimer = setInterval(function() {
+    examSecondsLeft--;
+    updateExamClock();
+    if (examSecondsLeft <= 0) submitExam(true);
+  }, 1000);
+}
+
+function formatExamTime() {
+  var m = Math.floor(examSecondsLeft / 60);
+  var sec = examSecondsLeft % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+function updateExamClock() {
+  var el = document.getElementById('examProgress');
+  if (el) el.textContent = (examIndex + 1) + ' / ' + examItems.length + ' · ' + formatExamTime();
+}
+function renderExamNavigator() {
+  var nav = document.getElementById('examNav');
+  if (!nav) return;
+  nav.innerHTML = '';
+  for (var i = 0; i < examItems.length; i++) {
+    (function(index) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'exam-nav-btn' + (examAnswers[index] !== undefined ? ' answered' : '') + (index === examIndex ? ' current' : '');
+      b.textContent = index + 1;
+      b.setAttribute('aria-label', 'Đi đến câu ' + (index + 1));
+      b.disabled = examSubmitted;
+      b.onclick = function() {
+        if (examSubmitted) return;
+        examIndex = index;
+        renderExamQuestion();
+        var card = document.getElementById('examArea');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      nav.appendChild(b);
+    })(i);
+  }
+}
+
+function renderExamQuestion() {
+  var q = examItems[examIndex];
+  document.getElementById('examNum').textContent = 'Câu ' + (examIndex + 1);
+  document.getElementById('examProgress').textContent = (examIndex + 1) + ' / ' + examItems.length + ' · ' + formatExamTime();
+  document.getElementById('examText').textContent = q.q;
+  var el = document.getElementById('examOptions');
+  el.innerHTML = '';
+  for (var i = 0; i < q.opts.length; i++) {
+    (function(opt, idx) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt' + (examAnswers[examIndex] === idx ? ' exam-option selected' : '');
+      var l = document.createElement('span'); l.className = 'opt-letter'; l.textContent = LETTERS[idx];
+      var t = document.createElement('span'); t.className = 'opt-text'; t.textContent = opt.text;
+      b.appendChild(l); b.appendChild(t);
+      b.onclick = function() {
+        if (examSubmitted) return;
+        examAnswers[examIndex] = idx;
+        renderExamQuestion();
+        updateExamProgress();
+      };
+      el.appendChild(b);
+    })(q.opts[i], i);
+  }
+  document.getElementById('examPrev').disabled = examIndex === 0;
+  document.getElementById('examPrev').style.opacity = examIndex === 0 ? '.45' : '1';
+  document.getElementById('examNext').textContent = examIndex === examItems.length - 1 ? 'Xem câu đầu →' : 'Câu tiếp →';
+  updateExamProgress();
+  renderExamNavigator();
+}
+function updateExamProgress() {
+  var count = Object.keys(examAnswers).length;
+  var countEl = document.getElementById('examAnsweredCount');
+  if (countEl) countEl.textContent = 'Đã chọn ' + count + ' / 50 câu';
+  var nav = document.getElementById('examNav');
+  if (nav) {
+    var buttons = nav.getElementsByTagName('button');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].className = 'exam-nav-btn' + (examAnswers[i] !== undefined ? ' answered' : '') + (i === examIndex ? ' current' : '');
+      buttons[i].disabled = examSubmitted;
+    }
+  }
+}
+
+document.getElementById('examPrev').onclick = function() {
+  if (examIndex > 0) { examIndex--; renderExamQuestion(); }
+};
+document.getElementById('examNext').onclick = function() {
+  examIndex = (examIndex + 1) % examItems.length;
+  renderExamQuestion();
+};
+document.getElementById('examSubmit').onclick = function() { submitExam(false); };
+document.getElementById('cancelSubmit').onclick = function() {
+  document.getElementById('submitConfirm').classList.add('hidden');
+};
+document.getElementById('confirmSubmit').onclick = function() {
+  document.getElementById('submitConfirm').classList.add('hidden');
+  submitExam(true);
+};
+function submitExam(autoSubmit) {
+  if (examSubmitted) return;
+  var unanswered = examItems.length - Object.keys(examAnswers).length;
+  if (!autoSubmit && unanswered > 0) {
+    document.getElementById('submitConfirmText').textContent = 'Bạn còn ' + unanswered + ' câu chưa chọn. Bạn vẫn muốn nộp bài?';
+    document.getElementById('submitConfirm').classList.remove('hidden');
+    return;
+  }
+  if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  examSubmitted = true;
+  var score = 0, review = '';
+  renderExamNavigator();
+  for (var i = 0; i < examItems.length; i++) {
+    var q = examItems[i], chosen = examAnswers[i];
+    var correctIdx = -1;
+    for (var j = 0; j < q.opts.length; j++) if (q.opts[j].correct) correctIdx = j;
+    var ok = chosen === correctIdx;
+    if (ok) score++;
+    var your = chosen === undefined ? 'Chưa chọn' : LETTERS[chosen] + '. ' + q.opts[chosen].text;
+    var right = LETTERS[correctIdx] + '. ' + q.opts[correctIdx].text;
+    review += '<div class="exam-review-row"><b>Câu ' + (i+1) + ':</b> ' +
+      (ok ? '<span class="ok">Đúng</span>' : '<span class="bad">Sai</span>') +
+      '<br>Đáp án của bạn: ' + escapeHtml(your) + '<br>Đáp án đúng: <b>' + escapeHtml(right) + '</b></div>';
+  }
+  document.getElementById('examArea').className = 'hidden';
+  document.getElementById('finishScreen').className = 'finish show';
+  document.getElementById('finishMessage').textContent = 'Bạn đã hoàn thành ' + examSetName + ' · 50 câu đã được xáo trộn.';
+  document.getElementById('finishScore').textContent = score + ' / 50';
+  document.getElementById('finishNote').textContent = '';
+  document.getElementById('finishNote').textContent = 'Điểm: ' + (score * 0.2).toFixed(1) + ' / 10';
+  document.getElementById('examReview').innerHTML = '<h3 style="margin:16px 0 8px;">Đáp án và đối chiếu</h3>' + review;
+};
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function backToModes() {
+  document.getElementById('submitConfirm').classList.add('hidden');
+  if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('examArea').className = 'hidden';
+  document.getElementById('finishScreen').className = 'finish';
+  document.getElementById('modeScreen').className = 'mode-screen show';
+  document.getElementById('appHeader').classList.add('hidden');
+  document.querySelector('.kpi-wrap').classList.add('hidden');
+  document.getElementById('kpiBadge').classList.add('hidden');
+  document.getElementById('kpiBadge').textContent = '0 / 150';
+  document.getElementById('kpiText').textContent = 'Chọn chế độ học hoặc kiểm tra';
+  document.getElementById('kpiFill').style.width = '0%';
+}
+
+// PASSWORD LOGIC — random 1-5 mỗi lần mở
+var PW = String(1 + Math.floor(Math.random() * 5));
+
+// Enter key submits
+document.getElementById('pwInput').onkeydown = function(e) {
+  if (e.keyCode === 13) { pwCheck(); }
+};
+
+function pwCheck() {
+  var val = document.getElementById('pwInput').value;
+  if (val === PW) {
+    var scr = document.getElementById('pwScreen');
+    scr.style.webkitTransition = 'opacity 0.4s';
+    scr.style.transition = 'opacity 0.4s';
+    scr.style.opacity = '0';
+    setTimeout(function() { scr.style.display = 'none'; }, 400);
+    document.getElementById('modeScreen').className = 'mode-screen show';
+    document.getElementById('quizArea').style.display = 'none';
+  } else {
+    document.getElementById('pwErr').textContent = '❌ Sai mật khẩu, thử lại!';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+    var box = document.querySelector('.pw-box');
+    box.style.webkitTransition = 'transform 0.08s';
+    box.style.transition = 'transform 0.08s';
+    box.style.webkitTransform = 'translateX(-10px)';
+    box.style.transform = 'translateX(-10px)';
+    setTimeout(function() {
+      box.style.webkitTransform = 'translateX(10px)';
+      box.style.transform = 'translateX(10px)';
+    }, 80);
+    setTimeout(function() {
+      box.style.webkitTransform = 'translateX(0)';
+      box.style.transform = 'translateX(0)';
+    }, 160);
+  }
+}
+
+// Hide main content initially
+document.getElementById('quizArea').style.display = 'none';
+document.getElementById('examArea').className = 'hidden';
+</script>
+</body>
+</html>

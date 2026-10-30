@@ -216,10 +216,10 @@ header h1 { font-size: 17px; font-weight: 700; color: #172033; }
 <!-- PASSWORD SCREEN -->
 <div id="pwScreen">
   <div class="pw-box">
-    <div class="pw-icon">🔐</div>
-    <div class="pw-title">Nhập mật khẩu</div>
-    <div class="pw-hint">Mật khẩu hỏi Phúc</div>
-    <input class="pw-input" id="pwInput" type="password" maxlength="10" placeholder="••••" autocomplete="off" />
+    <div class="pw-icon">❓</div>
+    <div class="pw-title">Trả lời câu hỏi</div>
+    <div class="pw-hint">Tại sao thi ĐTM Quang về sớm?</div>
+    <input class="pw-input" id="pwInput" type="text" maxlength="100" placeholder="Nhập câu trả lời..." autocomplete="off" style="font-size:16px;letter-spacing:0;text-align:left;" />
     <button class="pw-btn" type="button" onclick="pwCheck()">Xác nhận</button>
     <div class="pw-err" id="pwErr"></div>
   </div>
@@ -755,8 +755,8 @@ function backToModes() {
   document.getElementById('kpiFill').style.width = '0%';
 }
 
-// PASSWORD LOGIC — random 1-5 mỗi lần mở
-var PW = String(1 + Math.floor(Math.random() * 5));
+// ANSWER LOGIC — câu trả lời cho câu hỏi bảo mật
+var PW = "Lật tài liệu bị thầy bắt";
 
 // Enter key submits
 document.getElementById('pwInput').onkeydown = function(e) {
@@ -765,7 +765,7 @@ document.getElementById('pwInput').onkeydown = function(e) {
 
 function pwCheck() {
   var val = document.getElementById('pwInput').value;
-  if (val === PW) {
+  if (val.trim().toLocaleLowerCase('vi') === PW.toLocaleLowerCase('vi')) {
     var scr = document.getElementById('pwScreen');
     scr.style.webkitTransition = 'opacity 0.4s';
     scr.style.transition = 'opacity 0.4s';
@@ -774,7 +774,7 @@ function pwCheck() {
     document.getElementById('modeScreen').className = 'mode-screen show';
     document.getElementById('quizArea').style.display = 'none';
   } else {
-    document.getElementById('pwErr').textContent = '❌ Sai mật khẩu, thử lại!';
+    document.getElementById('pwErr').textContent = '❌ Chưa đúng câu trả lời, thử lại!';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
     var box = document.querySelector('.pw-box');
